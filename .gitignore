@@ -1,4 +1,4 @@
 # Foundry
-/lib
+/lib/forge-std
 # Dotenv file
 .env

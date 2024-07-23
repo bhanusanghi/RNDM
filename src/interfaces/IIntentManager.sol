@@ -11,6 +11,7 @@ enum IntentState {
 struct Intent {
     address user;
     address token;
+    address agent;
     uint intentId;
     uint amount;
     uint validFrom;
@@ -29,9 +30,18 @@ interface IIntentManager {
         bytes memory _intent
     ) external returns (uint);
 
-    function executeIntent(uint _intentId) external returns (bool);
+    function executeIntent(
+        uint _intentId,
+        address _agent,
+        address _user,
+        address _token,
+        uint _amount,
+        uint _validFrom,
+        uint _expiry,
+        bytes calldata _intent
+    ) external;
 
-    function reclaimFunds(uint _intentId) external returns (bool);
+    function reclaimTokens(uint _intentId) external;
 
     // function revokeIntent(
     //     uint _intentId
@@ -41,13 +51,29 @@ interface IIntentManager {
 
     function getIntent(uint _intentId) external view returns (Intent memory);
 
+    function isValidIntent(
+        uint _intentId,
+        address _user,
+        address _token,
+        uint _amount,
+        uint _validFrom,
+        uint _expiry,
+        bytes calldata _intent
+    ) external view returns (bool);
+
     // ### Admin functions ###
 
-    // setRouterAddress
-    // setMinExpiry
-    // setMaxExpiry
-    // setMinAmount
-    // whitelistToken
+    function setMinExpiry(uint _minExpiry) external;
+
+    function whitelistToken(
+        address _token,
+        bool _isWhitelisted,
+        uint _minAmount
+    ) external;
+
+    function whitelistExecutor(address _executor, bool _isWhitelisted) external;
+
+    function setMinTokenAmount(address _token, uint _minAmount) external;
 
     // ### Events ###
     event IntentCreated(
@@ -62,15 +88,19 @@ interface IIntentManager {
     );
 
     event IntentExecuted(
-        address indexed user,
-        address indexed agent,
         uint indexed intentId,
-        bytes32 intentHash
+        address indexed agent,
+        address indexed user,
+        bytes32 intentHash,
+        address token,
+        uint amount,
+        uint executedAt
     );
 
-    event FundsReclaimed(
-        address indexed user,
+    event TokensReclaimed(
         uint indexed intentId,
-        bytes32 intentHash
+        address indexed user,
+        address indexed token,
+        uint amount
     );
 }
