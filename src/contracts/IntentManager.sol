@@ -67,7 +67,7 @@ contract IntentManager is IIntentManager {
             _validFrom,
             _expiry,
             keccak256(
-                abi.encode(
+                abi.encode( // does not pack data to avoid data corruption while checking intent validity
                     msg.sender,
                     _token,
                     _amount,
