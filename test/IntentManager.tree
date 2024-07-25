@@ -1,0 +1,54 @@
+
+Intent Creation
+└── CreateIntent
+    ├── is not WhitelistedToken
+    │   └── revert
+    └── is WhitelistedToken
+        ├── amount less than minAmount
+        │   └── revert
+        └── amount more than minAmount
+            ├── invalid expiration
+            │   └── revert
+            └── valid expiration
+                ├── Assigns intentId = IntentCount
+                ├── Stores new Intent with IntentHash
+                ├── Transfers token from msg.sender
+                └── Emits IntentCreated
+
+Intent Execution
+└── ExecuteIntent
+    ├── is not WhitelistedExecutor
+    │   └── revert
+    └── is WhitelistedExecutor
+        ├── intentId does not exist
+        │   └── revert
+        └── intentId exists
+            ├── is inValid IntentHash
+            │   └── revert
+            └── is valid IntentHash
+                ├── is IntentState != Active
+                │   └── revert
+                └── is IntentState == Active
+                    ├── is outside ExecutionTimeFrame? (is block.timestamp > expiration or is block.timestamp < validFrom)
+                    │   └── revert
+                    └── is within ExecutionTimeFrame? is block.timestamp <= expiration and is block.timestamp >= validFrom
+                        ├── update IntentState to Executed
+                        ├── update filling agent
+                        ├── transfer token to msg.sender (whitelisted executor)
+                        └── emit IntentExecuted
+
+Reclaiming tokens for expired intents
+└── ReclaimTokens
+    ├── is not valid intentId
+    │   └── revert
+    └── is valid intentId
+        ├── is msg.sender != intentOwner
+        │   └── revert
+        └── is msg.sender == intentOwner
+            ├── is IntentState != Active
+            │   └── revert
+            └── is IntentState == Active
+                └── is intent expired? (is block.timestamp > expiration)
+                    ├── update IntentState to Expired
+                    ├── transfer token to msg.sender
+                    └── emit IntentExpired

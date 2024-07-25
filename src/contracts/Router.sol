@@ -49,7 +49,7 @@ contract Router is IRouter {
     ) external override onlyWhitelistedCurators {
         uint totalAmountProcessed;
         require(
-            vaults.length == depositAmounts.length,
+            vaults.length == depositAmounts.length && vaults.length > 0,
             "Router: Invalid input"
         );
         // Checks if the intent is valid
@@ -80,7 +80,7 @@ contract Router is IRouter {
             IERC20(token).approve(vaults[i], depositAmounts[i]);
             IERC4626(vaults[i]).deposit(depositAmounts[i], user);
         }
-        // Invariant check -  totalProcessedAmount is equal to the amount in the intent
+        // Invariant check -  totalAmountProcessed is equal to the amount in the intent
         require(
             totalAmountProcessed == amount,
             "Router: Total amount processed != intent amount"

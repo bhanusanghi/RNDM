@@ -1,0 +1,29 @@
+
+ExecuteIntent
+├── Is not a whitelistedCurator
+│   └── Revert
+└── Is a whitelistedCurator
+    ├── is vaults.len != depositAmounts.len
+    │   └── Revert
+    ├── is vaults.len == 0
+    │   └── Revert
+    └── is vaults.len == depositAmounts.len && vaults.len != 0
+        ├── call executeIntent on IntentManager
+        ├── transfer agent fee to agent
+        ├── validate if vault is whitelisted
+        ├── Approve token to vault
+        ├── deposit token to vault with user as the shares reciver
+        └── After all deposits are done check if total deposits + fee == intent.amount
+
+Withdraw
+├── is not a whitelistedVault
+│   └── revert
+└── is a whitelistedVault
+    └── Call vault.withdraw with the passed params
+
+
+Redeem
+├── is not a whitelistedVault
+│   └── revert
+└── is a whitelistedVault
+    └── Call vault.redeem with the passed params
